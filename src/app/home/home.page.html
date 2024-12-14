@@ -1,13 +1,132 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Rastreamento GPS</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="relative">
 
-<ion-content>
-  <div id="map" class="map-container"></div>
-  <ion-button expand="full" color="primary" (click)="startTracking()">Iniciar</ion-button>
-  <ion-button expand="full" color="danger" (click)="stopTracking()" [disabled]="!isTracking">
-    Parar
-  </ion-button>
+  <div id="map" class="w-full h-full z-0"></div>
+
+  <div
+    id="recenter-button"
+    class="absolute top-4 right-4 bg-orange-500 shadow-lg rounded-full w-12 h-12 flex justify-center items-center z-20 cursor-pointer"
+    (click)="recenterMap()"
+  >
+    <ion-icon name="locate-outline" class="text-white text-2xl"></ion-icon>
+  </div>
+
+
+  <div
+    class="absolute bottom-0 left-0 w-full bg-white rounded-t-xl shadow-lg z-20 transition-transform duration-300"
+    [ngClass]="showDetails ? 'translate-y-0' : 'translate-y-full'"
+  >
+    <div
+      class="w-full flex justify-between items-center p-4 border-b border-gray-200"
+    >
+      <h2 class="text-lg font-bold text-gray-700">Detalhes</h2>
+      <ion-icon
+        name="close-outline"
+        class="text-2xl text-gray-500 cursor-pointer"
+        (click)="toggleDetails()"
+      ></ion-icon>
+    </div>
+
+    <div *ngIf="isTracking">
+      <div class="p-4">
+        <!-- Tempo -->
+        <div class="flex gap-5 justify-center">
+          <div class="text-center mb-4">
+            <h3 class="text-sm text-gray-500">TEMPO</h3>
+            <p class="text-2xl font-bold text-gray-800">
+              {{ formatTimer(timer) }}
+            </p>
+          </div>
+
+          <div class="text-center mb-4">
+            <h3 class="text-sm text-gray-500">RITMO MÉD PARCIAL</h3>
+            <p class="text-2xl font-bold text-gray-800">
+              {{ getFormattedPace() }}
+            </p>
+          </div>
+
+          <div class="text-center">
+            <h3 class="text-sm text-gray-500">DISTÂNCIA</h3>
+            <p class="text-2xl font-bold text-gray-800">
+              {{ totalDistance | number: '1.2-2' }} /KM
+            </p>
+          </div>
+        </div>
+
+        <div class="flex justify-center">
+        </div>
+      </div>
+    </div>
+
+    <div class="p-6" *ngIf="!isTracking">
+      <p class="text-black text-center">Nenhuma corrida em andamento</p>
+    </div>
+  </div>
 </ion-content>
+
+<ion-footer class="w-full bg-white border-t border-gray-300 z-20">
+  <div class="flex justify-around items-center h-20">
+    <ion-button
+      (click)="activateButton('stats'); toggleDetails()"
+      fill="clear"
+      class="text-gray-500"
+      [ngClass]="{ 'text-orange-500': activeButton === 'stats' }"
+    >
+      <ion-icon name="stats-chart-outline" class="text-[24px]"></ion-icon>
+    </ion-button>
+    <ion-button
+      (click)="activateButton('call')"
+      fill="clear"
+      class="text-gray-500"
+      [ngClass]="{ 'text-orange-500': activeButton === 'call' }"
+    >
+      <ion-icon name="call-outline" class="text-[24px]"></ion-icon>
+    </ion-button>
+    <ion-button
+      (click)="activateButton('heart')"
+      fill="clear"
+      class="text-gray-500"
+      [ngClass]="{ 'text-orange-500': activeButton === 'heart' }"
+    >
+      <ion-icon name="heart-outline" class="text-[24px]"></ion-icon>
+    </ion-button>
+    <ion-button
+      (click)="activateButton('wifi')"
+      fill="clear"
+      class="text-gray-500"
+      [ngClass]="{ 'text-orange-500': activeButton === 'wifi' }"
+    >
+      <ion-icon name="wifi-outline" class="text-[24px]"></ion-icon>
+    </ion-button>
+  </div>
+
+  <div class="flex justify-center items-center mt-[-15px]">
+    <div
+      class="relative flex justify-center items-center"
+      [ngClass]="{ 'pulse-effect': isTracking }"
+    >
+      <ion-button
+        fill="clear"
+        [ngClass]="{
+          'bg-orange-500': !isTracking,
+          'bg-red-500': isTracking
+        }"
+        class="text-white rounded-full h-16 w-16 flex items-center justify-center shadow-md !p-0"
+        (click)="isTracking ? openStopDialog() : startTracking()"
+      >
+        <ion-icon
+          [name]="isTracking ? 'stop-outline' : 'radio-button-on'"
+          class="text-2xl"
+        ></ion-icon>
+      </ion-button>
+    </div>
+  </div>
+
+  <div class="flex justify-center mt-2 mb-2">
+    <span
+      class="text-sm font-bold"
+      [ngClass]="isTracking ? 'text-red-500' : 'text-orange-500'"
+    >
+      {{ isTracking ? 'PARAR' : 'INICIAR' }}
+    </span>
+  </div>
+</ion-footer>
